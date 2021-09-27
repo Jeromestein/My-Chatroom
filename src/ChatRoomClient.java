@@ -6,12 +6,12 @@ import java.util.Scanner;
  * Chat Room Client
  */
 public class ChatRoomClient {
-
+    // define chatroom's server socket
     private Socket clientSocket;
 
     public ChatRoomClient() {
         try {
-            // create client and link to server
+            // create a client and link to server
             clientSocket = new Socket("localhost", 12345);
             System.out.println("Client Running:" + clientSocket.getLocalPort());
         } catch (IOException e) {
@@ -33,8 +33,8 @@ public class ChatRoomClient {
         @Override
         public void run() {
             try {
-                System.out.println("群聊格式[直接发言]");
-                System.out.println("私聊格式[port-聊天内容]");
+                System.out.println("Broadcast Format [msg]");
+                System.out.println("Direct Msg Format[port-msg]");
                 // get user's input
                 Scanner scanner = new Scanner(System.in);
                 while (true) {

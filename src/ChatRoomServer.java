@@ -11,23 +11,22 @@ import java.util.List;
  * Chat Room Server
  */
 public class ChatRoomServer {
-    // 时间转换的格式
+    // define date format
     private static DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    // 定义一个聊天室的服务器
+    // define chatroom's server socket
     private ServerSocket serverSocket;
-    // 定义一个容器存放所有的客户端
+    // define a list to store all the clients' info
     private List<Socket> clients;
 
     /**
-     * 定义一个构造器，初始化一些信息
+     * constructor, initialization
      */
     public ChatRoomServer() {
         try {
-            // 创建一个服务器
+            // create a server
             serverSocket = new ServerSocket(12345);
-            // 提示信息：服务器已经启动了
-            System.out.println("聊天室服务器[" + serverSocket.getLocalPort() + "]启动成功...");
-            // 定义存放客户端的容器
+            System.out.println("Chatroom Server[" + serverSocket.getLocalPort() + "] started successfully...");
+            // initialize the client list
             clients = new ArrayList<>();
         } catch (IOException e) {
             e.printStackTrace();
@@ -35,23 +34,23 @@ public class ChatRoomServer {
     }
 
     /**
-     * 服务器开始工作，并接受客户端的请求
+     * server starts to run, and accept clients' requests
      */
     public void serverStart() throws IOException {
-        // 等待客户端的访问
+        // waiting for clients
         while (true) {
             Socket socket = serverSocket.accept();
-            // 加入到客户列表
+            // add it to client list
             clients.add(socket);
-            // 通知其他用户有新用户进入直播间
-            serverSendAll("用户[" + socket.getPort() + "]进入聊天室");
-            // 开始启动消息推送线程
+            // broadcast to all about the entrance of new client
+            serverSendAll("Client[" + socket.getPort() + "] in");
+            // start the msg thread
             new MsgThread(socket).start();
         }
     }
 
     /**
-     * 向所有的客户端发送消息
+     * broadcast msg to all clients
      *
      * @param msg
      */
@@ -68,11 +67,10 @@ public class ChatRoomServer {
     }
 
     /**
-     * 消息线程
+     * the thread of msg
      */
     class MsgThread extends Thread {
-
-        // 当前客户端
+        // current clients
         private Socket socket;
 
         public MsgThread(Socket socket) {
@@ -83,12 +81,12 @@ public class ChatRoomServer {
         public void run() {
             try {
                 while (true) {
-                    // 开始接受客户端的信息
+                    // processing client's msg
                     BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), "utf-8"));
                     final String msg = reader.readLine();
-                    // 判断这个消息是群聊还是私聊
+                    // check if direct msg or broadcast
                     if (msg.contains("-")) {
-                        // 私聊
+                        // direct msg
                         clients.stream().filter((c) -> c.getPort() == Integer.parseInt(msg.split("-")[0]))
                                 .forEach((s) -> {
                                     try {
@@ -101,9 +99,9 @@ public class ChatRoomServer {
                                     }
                                 });
                     } else {
-                        // 拼接消息
-                        String newMsg = "客户端[" + socket.getPort() + "]时间[" + format.format(new Date()) + "]:" + msg;
-                        // 群聊-开始向所有客户端发送信息
+                        // boradcast
+                        String newMsg = "Server[" + socket.getPort() + "]Time[" + format.format(new Date()) + "]:"
+                                + msg;
                         serverSendAll(newMsg);
                     }
                 }
@@ -114,7 +112,7 @@ public class ChatRoomServer {
     }
 
     public static void main(String[] args) throws IOException {
-        // 启动一个聊天室的服务器
+        // start a chatroom server
         new ChatRoomServer().serverStart();
     }
 }
