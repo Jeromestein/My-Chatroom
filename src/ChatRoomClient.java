@@ -2,30 +2,32 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
-
+/**
+ * Chat Room Client
+ */
 public class ChatRoomClient {
-    // 客户端对象
-    private Socket socket;
+
+    private Socket clientSocket;
 
     public ChatRoomClient() {
         try {
-            // 创建客户端并和服务器创建连接
-            socket = new Socket("localhost", 12345);
-            System.out.println("客户端启动：" + socket.getLocalPort());
+            // create client and link to server
+            clientSocket = new Socket("localhost", 12345);
+            System.out.println("Client Running:" + clientSocket.getLocalPort());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void clientStart() {
-        // 发送消息
+        // send msg
         new ClientSendThread().start();
-        // 接受消息
+        // receive msg
         new ClientReceiveThread().start();
     }
 
     /**
-     * 专门负责发送消息
+     * the thread of sending msg
      */
     private class ClientSendThread extends Thread {
         @Override
@@ -33,13 +35,13 @@ public class ChatRoomClient {
             try {
                 System.out.println("群聊格式[直接发言]");
                 System.out.println("私聊格式[port-聊天内容]");
-                // 开始获取用户的输入
+                // get user's input
                 Scanner scanner = new Scanner(System.in);
                 while (true) {
                     String msg = scanner.next();
-                    // 开始向服务器发送消息
+                    // sending msg to server
                     BufferedWriter writer = null;
-                    writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "utf-8"));
+                    writer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "utf-8"));
                     writer.write(msg + "\n");
                     writer.flush();
                 }
@@ -50,15 +52,16 @@ public class ChatRoomClient {
     }
 
     /**
-     * 专门负责接受消息
+     * the thread of receiving msg
      */
     private class ClientReceiveThread extends Thread {
         @Override
         public void run() {
             try {
                 while (true) {
-                    // 接收服务器发送的消息
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), "utf-8"));
+                    // receive msg from server
+                    BufferedReader reader = new BufferedReader(
+                            new InputStreamReader(clientSocket.getInputStream(), "utf-8"));
                     System.out.println(reader.readLine());
                 }
             } catch (IOException e) {
