@@ -92,7 +92,9 @@ public class ChatRoomServer {
                                     try {
                                         BufferedWriter writer = new BufferedWriter(
                                                 new OutputStreamWriter(s.getOutputStream(), "utf-8"));
-                                        writer.write(msg + "\n");
+                                        String newMsg = "DM: Client[" + socket.getPort() + "]Time["
+                                                + format.format(new Date()) + "]:" + msg;
+                                        writer.write(newMsg + "\n");
                                         writer.flush();
                                     } catch (IOException e) {
                                         e.printStackTrace();
@@ -100,7 +102,7 @@ public class ChatRoomServer {
                                 });
                     } else {
                         // boradcast
-                        String newMsg = "Server[" + socket.getPort() + "]Time[" + format.format(new Date()) + "]:"
+                        String newMsg = "Client[" + socket.getPort() + "]Time[" + format.format(new Date()) + "]:"
                                 + msg;
                         serverSendAll(newMsg);
                     }
